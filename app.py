@@ -19,6 +19,7 @@
 
 import flask
 import os
+import pymysql
 import toolforge
 import werkzeug.contrib.fixers
 
@@ -33,7 +34,39 @@ app.wsgi_app = werkzeug.contrib.fixers.ProxyFix(app.wsgi_app)
 app.before_request(toolforge.redirect_to_https)
 
 
+def connect(db, host, **kwargs):
+    return pymysql.connect(
+        database=db,
+        host=host,
+        read_default_file=os.path.expanduser("~/replica.my.cnf"),
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor,
+        **kwargs
+    )
+
+
+def dbusage(host):
+    conn = connect('information_schema', host)
+    try:
+        with conn.cursor() as cursor:
+            sql = """SELECT
+                table_schema
+                , sum( data_length ) as data_bytes
+                , sum( index_length ) as index_bytes
+                , sum( table_rows ) as row_count
+                , count(1) as tables
+                FROM information_schema.TABLES
+                WHERE table_schema regexp '^[psu][0-9]'
+                GROUP BY table_schema
+                ORDER BY data_bytes DESC"""
+            cursor.execute(sql)
+            return cursor.fetchall()
+    finally:
+        conn.close()
+
+
 @app.route('/')
 def index():
     """Application landing page."""
-    return flask.render_template('index.html')
+    usage = dbusage('c1.labsdb')
+    return flask.render_template('index.html', usage=usage)

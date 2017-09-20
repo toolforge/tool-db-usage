@@ -1,1 +1,35 @@
 {% extends "layout.html" %}
+
+{% block content %}
+<table id="usage" class="table table-striped table-condensed table-bordered">
+  <thead>
+    <tr>
+      <th>Schema</th>
+      <th data-sort-method="number" data-sort-default>Data size</th>
+      <th data-sort-method="number">Index size</th>
+      <th data-sort-method="number">Rows</th>
+      <th data-sort-method="number">Tables</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in usage %}
+    <tr>
+      <td id="{{ u.table_schema }}">{{ u.table_schema }}</td>
+      <td class="number">{{ u.data_bytes }}</td>
+      <td class="number">{{ u.index_bytes }}</td>
+      <td class="number">{{ u.row_count }}</td>
+      <td class="number">{{ u.tables }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/tablesort/5.0.0/tablesort.min.js"></script>
+<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/tablesort/5.0.0/src/sorts/tablesort.number.js"></script>
+<script>
+    new Tablesort(document.getElementById('usage'), {descending: true});
+</script>
+{% endblock %}
