@@ -19,6 +19,7 @@
 
 import flask
 import os
+import toolforge
 import werkzeug.contrib.fixers
 
 
@@ -27,6 +28,9 @@ app = flask.Flask(__name__)
 
 # Add the ProxyFix middleware which reads X-Forwarded-* headers
 app.wsgi_app = werkzeug.contrib.fixers.ProxyFix(app.wsgi_app)
+
+# Always use TLS
+app.before_request(toolforge.redirect_to_https)
 
 
 @app.route('/')
