@@ -50,14 +50,14 @@ def dbusage(host):
     try:
         with conn.cursor() as cursor:
             sql = """SELECT
-                table_schema
-                , sum( data_length ) as data_bytes
-                , sum( index_length ) as index_bytes
-                , sum( table_rows ) as row_count
-                , count(1) as tables
+                  SUBSTRING_INDEX(table_schema, '_', 1) as owner
+                , SUM( data_length ) as data_bytes
+                , SUM( index_length ) as index_bytes
+                , SUM( table_rows ) as row_count
+                , COUNT(1) as tables
                 FROM information_schema.TABLES
                 WHERE table_schema regexp '^[psu][0-9]'
-                GROUP BY table_schema
+                GROUP BY owner
                 ORDER BY data_bytes DESC"""
             cursor.execute(sql)
             return cursor.fetchall()
