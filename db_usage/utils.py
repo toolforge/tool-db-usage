@@ -89,3 +89,16 @@ def ldap_conn():
     ], ldap3.ROUND_ROBIN, active=True, exhaust=True)
     return ldap3.Connection(
         servers, read_only=True, auto_bind=True)
+
+
+def uid_to_cn(uid):
+    with ldap_conn() as conn:
+        conn.search(
+            'dc=wikimedia,dc=org',
+            '(uidNumber={})'.format(uid),
+            ldap3.SUBTREE,
+            attributes=['cn'],
+            time_limit=5
+        )
+        for resp in conn.response:
+            return resp['attributes']['cn']

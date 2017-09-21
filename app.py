@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-
 import flask
 import toolforge
 import werkzeug.contrib.fixers
@@ -45,3 +43,8 @@ def index():
         'c3.labsdb': db_usage.dbusage('c3.labsdb', cached=cached),
     }
     return flask.render_template('index.html', usage=usage)
+
+
+@app.template_filter('owner')
+def owner(s):
+    return db_usage.decode_owner(s)

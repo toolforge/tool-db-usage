@@ -15,7 +15,7 @@
   <tbody>
     {% for u in data %}
     <tr>
-      <td id="{{ u.owner }}">{{ u.owner }}</td>
+      <td id="{{ u.owner }}">{{ u.owner|owner }} ({{ u.owner }})</td>
       <td class="number" data-sort="{{ u.total_bytes }}">{{ u.total_bytes|filesizeformat }}</td>
       <td class="number">{{ u.row_count|int }}</td>
       <td class="number">{{ u.tables }}</td>

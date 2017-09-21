@@ -23,6 +23,14 @@ import db_usage.utils as utils
 CACHE = utils.Cache()
 
 
+LEAGACY_USERS = {
+    'p50380g50491': 'tools.tb-dev',
+    'p50380g50769': 'tools.wikiviewstats',
+    'p50380g50816': 'tools.popularpages',
+    'p50380g50921': 'tools.wikiminiatlas',
+}
+
+
 def dbusage(host, cached=True):
     """Get a list of database usage records for a given host."""
     cache_key = 'dbusage:{}'.format(host)
@@ -46,3 +54,17 @@ def dbusage(host, cached=True):
             conn.close()
         CACHE.save(cache_key, data)
     return data
+
+
+def decode_owner(owner):
+    """Return a link to the owner of the tablespace."""
+    if owner[0] == 'u':
+        # normal user
+        cn = utils.uid_to_cn(owner[1:])
+    elif owner[0] == 's':
+        # "service group" == tool
+        cn = utils.uid_to_cn(owner[1:])
+    else:
+        # legacy service group
+        cn = LEAGACY_USERS.get(owner, owner)
+    return cn
