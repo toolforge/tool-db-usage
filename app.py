@@ -45,9 +45,17 @@ def index():
     return flask.render_template('index.html', usage=usage)
 
 
+@app.route('/owner/<name>')
+def owner_usage(name):
+    cached = 'purge' not in flask.request.args
+    usage = db_usage.owner_usage(name, cached=cached)
+    return flask.render_template('owner.html', name=name, usage=usage)
+
+
 @app.template_filter('owner')
-def owner(s):
+def owner_name(s):
     return db_usage.decode_owner(s)
+
 
 @app.template_filter('owner_url')
 def owner_url(s):

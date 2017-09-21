@@ -70,6 +70,32 @@ def dbusage(host, cached=True):
     return data
 
 
+def owner_usage(owner, cached=True):
+    cache_key = 'owner_usage:{}'.format(owner)
+    data = CACHE.load(cache_key) if cached else None
+    if data is None:
+        data = []
+        for host in ('c1.labsdb', 'c3.labsdb'):
+            conn = utils.dbconnect('information_schema', host)
+            try:
+                with conn.cursor() as cursor:
+                    sql = """SELECT
+                        table_schema
+                        , table_name
+                        , SUM( data_length + index_length ) as total_bytes
+                        , SUM( table_rows ) as row_count
+                        FROM information_schema.TABLES
+                        WHERE table_schema like %s
+                        ORDER BY table_schema, table_name"""
+                    cursor.execute(sql, '{}_%'.format(owner))
+                    for row in cursor.fetchall():
+                        row['host'] = host
+                        data.append(row)
+            finally:
+                conn.close()
+    return data
+
+
 def decode_owner(owner):
     """Return a link to the owner of the tablespace."""
     if owner[0] == 'u':

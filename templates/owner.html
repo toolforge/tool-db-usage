@@ -1,29 +1,29 @@
 {% extends "layout.html" %}
 
 {% block content %}
-{% for db, data in usage|dictsort %}
-<h2>{{ db }}</h2>
-<table id="{{ db }}" class="table table-striped table-condensed table-bordered tablesort">
+<h2>Tables owned by {{ name }} ({{ name|owner }})</h2>
+<table class="table table-striped table-condensed table-bordered tablesort">
   <thead>
     <tr>
-      <th>Owner</th>
+      <th>Server</th>
+      <th>Schema</th>
+      <th>Table</th>
       <th data-sort-method="number" data-sort-default>Size</th>
       <th data-sort-method="number">Rows</th>
-      <th data-sort-method="number">Tables</th>
     </tr>
   </thead>
   <tbody>
-    {% for u in data %}
+    {% for r in usage|sort(attribute='host') %}
     <tr>
-      <td id="{{ u.owner }}"><a href="{{ u.owner|owner_url }}">{{ u.owner|owner }}</a> (<a href="{{ url_for('owner_usage', name=u.owner) }}">{{ u.owner }}</a>)</td>
-      <td class="number" data-sort="{{ u.total_bytes }}">{{ u.total_bytes|filesizeformat }}</td>
-      <td class="number">{{ u.row_count|int }}</td>
-      <td class="number">{{ u.tables }}</td>
+      <td>{{ r.host }}</td>
+      <td>{{ r.table_schema }}</td>
+      <td>{{ r.table_name }}</td>
+      <td class="number" data-sort="{{ r.total_bytes }}">{{ r.total_bytes|filesizeformat }}</td>
+      <td class="number">{{ r.row_count|int }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{% endfor %}
 {% endblock %}
 
 {% block js %}
