@@ -48,3 +48,17 @@ def index():
 @app.template_filter('owner')
 def owner(s):
     return db_usage.decode_owner(s)
+
+@app.template_filter('owner_url')
+def owner_url(s):
+    owner = db_usage.decode_owner(s)
+    if owner == 'UNKNOWN':
+        base = 'https://phabricator.wikimedia.org/T175096'
+        page = ''
+    elif owner.startswith('tools.'):
+        base = 'https://tools.wmflabs.org/admin/tool/'
+        page = owner[6:]
+    else:
+        base = 'https://wikitech.wikimedia.org/wiki/User:'
+        page = owner
+    return '{}{}'.format(base, page)
