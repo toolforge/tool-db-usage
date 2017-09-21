@@ -24,9 +24,23 @@ CACHE = utils.Cache()
 
 
 LEAGACY_USERS = {
+    'p50380g40014': 'UNKNOWN',
     'p50380g50491': 'tools.tb-dev',
+    'p50380g50494': 'UNKNOWN',
+    'p50380g50497': 'liagent-php',
+    'p50380g50512': 'UNKNOWN',
+    'p50380g50551': 'UNKNOWN',
+    'p50380g50552': 'UNKNOWN',
+    'p50380g50553': 'suggestbot',
+    'p50380g50592': 'UNKNOWN',
+    'p50380g50692': 'dplbot',
+    'p50380g50728': 'hostbot',
+    'p50380g50729': 'grantsbot',
     'p50380g50769': 'tools.wikiviewstats',
     'p50380g50816': 'tools.popularpages',
+    'p50380g50824': 'UNKNOWN',
+    'p50380g50838': 'UNKNOWN',
+    'p50380g50900': 'UNKNOWN',
     'p50380g50921': 'tools.wikiminiatlas',
 }
 

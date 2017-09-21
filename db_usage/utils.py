@@ -19,6 +19,7 @@
 
 from __future__ import division
 
+import functools
 import hashlib
 import json
 import os
@@ -91,6 +92,7 @@ def ldap_conn():
         servers, read_only=True, auto_bind=True)
 
 
+@functools.lru_cache(maxsize=None)
 def uid_to_cn(uid):
     with ldap_conn() as conn:
         conn.search(
@@ -101,4 +103,4 @@ def uid_to_cn(uid):
             time_limit=5
         )
         for resp in conn.response:
-            return resp['attributes']['cn']
+            return resp['attributes']['cn'][0]
