@@ -16,7 +16,7 @@
     <tr>
       <td id="{{ u.owner }}">{{ u.owner }}</td>
       <td class="number" data-sort="{{ u.total_bytes }}">{{ u.total_bytes|filesizeformat }}</td>
-      <td class="number">{{ u.row_count }}</td>
+      <td class="number" data-sort="{{ u.row_count }}">{{ "{:,d}"|format(u.row_count) }}</td>
       <td class="number">{{ u.tables }}</td>
     </tr>
     {% endfor %}
