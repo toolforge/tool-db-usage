@@ -1,2 +1,4 @@
 flask
+ldap3
+redis
 toolforge

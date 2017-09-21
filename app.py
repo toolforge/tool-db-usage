@@ -17,11 +17,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import flask
 import os
-import pymysql
+
+import flask
 import toolforge
 import werkzeug.contrib.fixers
+
+import db_usage
 
 
 # Create the Flask application
@@ -34,38 +36,9 @@ app.wsgi_app = werkzeug.contrib.fixers.ProxyFix(app.wsgi_app)
 app.before_request(toolforge.redirect_to_https)
 
 
-def connect(db, host, **kwargs):
-    return pymysql.connect(
-        database=db,
-        host=host,
-        read_default_file=os.path.expanduser("~/replica.my.cnf"),
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor,
-        **kwargs
-    )
-
-
-def dbusage(host):
-    conn = connect('information_schema', host)
-    try:
-        with conn.cursor() as cursor:
-            sql = """SELECT
-                  SUBSTRING_INDEX(table_schema, '_', 1) as owner
-                , SUM( data_length + index_length ) as total_bytes
-                , SUM( table_rows ) as row_count
-                , COUNT(1) as tables
-                FROM information_schema.TABLES
-                WHERE table_schema regexp '^[psu][0-9]'
-                GROUP BY owner
-                ORDER BY total_bytes DESC"""
-            cursor.execute(sql)
-            return cursor.fetchall()
-    finally:
-        conn.close()
-
-
 @app.route('/')
 def index():
     """Application landing page."""
-    usage = dbusage('c1.labsdb')
+    cached = 'purge' not in flask.request.args
+    usage = db_usage.dbusage('c1.labsdb', cached=cached)
     return flask.render_template('index.html', usage=usage)
