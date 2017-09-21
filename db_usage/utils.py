@@ -26,16 +26,27 @@ import pwd
 
 import ldap3
 import pymysql
+import pymysql.converters
+import pymysql.constants
 import redis
 
 
 def dbconnect(db, host, **kwargs):
+    conv = pymysql.converters.conversions.copy()
+    conv[pymysql.constants.FIELD_TYPE.TIMESTAMP] = str
+    conv[pymysql.constants.FIELD_TYPE.DATETIME] = str
+    conv[pymysql.constants.FIELD_TYPE.TIME] = str
+    conv[pymysql.constants.FIELD_TYPE.DATE] = str
+    conv[pymysql.constants.FIELD_TYPE.DECIMAL] = float
+    conv[pymysql.constants.FIELD_TYPE.NEWDECIMAL] = float
+
     return pymysql.connect(
         database=db,
         host=host,
         read_default_file=os.path.expanduser("~/replica.my.cnf"),
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor,
+        conv=conv,
         **kwargs
     )
 
