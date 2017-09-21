@@ -40,5 +40,8 @@ app.before_request(toolforge.redirect_to_https)
 def index():
     """Application landing page."""
     cached = 'purge' not in flask.request.args
-    usage = db_usage.dbusage('c1.labsdb', cached=cached)
+    usage = {
+        'c1.labsdb': db_usage.dbusage('c1.labsdb', cached=cached),
+        'c3.labsdb': db_usage.dbusage('c3.labsdb', cached=cached),
+    }
     return flask.render_template('index.html', usage=usage)

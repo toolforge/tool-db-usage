@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h2>c1.labsdb</h2>
+{% for db, data in usage %}
+<h2>{{ db }}</h2>
 <table id="usage" class="table table-striped table-condensed table-bordered">
   <thead>
     <tr>
@@ -12,7 +13,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for u in usage %}
+    {% for u in data %}
     <tr>
       <td id="{{ u.owner }}">{{ u.owner }}</td>
       <td class="number" data-sort="{{ u.total_bytes }}">{{ u.total_bytes|filesizeformat }}</td>
@@ -22,6 +23,7 @@
     {% endfor %}
   </tbody>
 </table>
+{% endfor %}
 {% endblock %}
 
 {% block js %}
