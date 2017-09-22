@@ -18,7 +18,7 @@
       <td>{{ r.host }}</td>
       <td>{{ r.table_schema }}</td>
       <td>{{ r.table_name }}</td>
-      <td class="number" data-sort="{{ r.total_bytes }}">{{ r.total_bytes|filesizeformat }}</td>
+      <td class="number" data-sort="{{ r.total_bytes|default(0, true) }}">{{ r.total_bytes|default(0, true)|filesizeformat }}</td>
       <td class="number">{{ r.row_count|int }}</td>
     </tr>
     {% endfor %}
