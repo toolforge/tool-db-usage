@@ -6,31 +6,43 @@
   <li class="active">{{ name }}</li>
 </ol>
 
-<h2>Tables owned by {{ name }} ({{ name|owner }})</h2>
+<h2>Tables owned by {{ name }}
+  <small>(<a href="{{ name|owner_url }}">{{ name|owner }}</a>)</small>
+</h2>
 
-{% for db, data in usage|dictsort %}
-<h2>{{ db }}</h2>
-<table class="table table-striped table-condensed table-bordered tablesort">
-  <thead>
-    <tr>
-      <th data-sort-default>Schema</th>
-      <th>Table</th>
-      <th data-sort-method="number">Size</th>
-      <th data-sort-method="number">Rows</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for r in data %}
-    <tr>
-      <td>{{ r.table_schema }}</td>
-      <td>{{ r.table_name }}</td>
-      <td class="number" data-sort="{{ r.total_bytes|int }}">{{ r.total_bytes|int|filesizeformat }}</td>
-      <td class="number">{{ r.row_count|int }}</td>
-    </tr>
+<div>
+  <ul class="nav nav-tabs" role="tablist">
+    {% for db, data in usage|dictsort %}
+    <li role="presentation" class="{% if loop.first %}active{% endif %}"><a href="#{{ db|replace(".", "-") }}" aria-controls="{{ db|replace(".", "-") }}" role="tab" data-toggle="tab">{{ db }}</a></li>
     {% endfor %}
-  </tbody>
-</table>
-{% endfor %}
+  </ul>
+  <div class="tab-content">
+    {% for db, data in usage|dictsort %}
+    <div role="tabpanel" class="tab-pane {% if loop.first %}active{% endif %}" id="{{ db|replace(".", "-") }}">
+      <table class="table table-striped table-condensed table-bordered tablesort">
+        <thead>
+          <tr>
+            <th data-sort-default>Schema</th>
+            <th>Table</th>
+            <th data-sort-method="number">Size</th>
+            <th data-sort-method="number">Rows</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in data %}
+          <tr>
+            <td>{{ r.table_schema }}</td>
+            <td>{{ r.table_name }}</td>
+            <td class="number" data-sort="{{ r.total_bytes|int }}">{{ r.total_bytes|int|filesizeformat }}</td>
+            <td class="number">{{ r.row_count|int }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}
 
 {% block js %}
