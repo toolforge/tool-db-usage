@@ -75,7 +75,7 @@ def owner_usage(owner, cached=True):
     data = CACHE.load(cache_key) if cached else None
     if data is None:
         data = {}
-        for host in ('c1.labsdb', 'c3.labsdb'):
+        for host in ('c1.labsdb', 'c3.labsdb', 'tools.labsdb'):
             conn = utils.dbconnect('information_schema', host)
             try:
                 with conn.cursor() as cursor:
