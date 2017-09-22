@@ -82,8 +82,8 @@ def owner_usage(owner, cached=True):
                     sql = """SELECT
                         table_schema
                         , table_name
-                        , SUM( data_length + index_length ) as total_bytes
-                        , SUM( table_rows ) as row_count
+                        , ( data_length + index_length ) as total_bytes
+                        , table_rows as row_count
                         FROM information_schema.TABLES
                         WHERE table_schema like %s
                         ORDER BY table_schema, table_name"""
