@@ -74,7 +74,7 @@ def owner_usage(owner, cached=True):
     cache_key = 'owner_usage:{}'.format(owner)
     data = CACHE.load(cache_key) if cached else None
     if data is None:
-        data = []
+        data = {}
         for host in ('c1.labsdb', 'c3.labsdb'):
             conn = utils.dbconnect('information_schema', host)
             try:
@@ -88,9 +88,7 @@ def owner_usage(owner, cached=True):
                         WHERE table_schema like %s
                         ORDER BY table_schema, table_name"""
                     cursor.execute(sql, '{}_%'.format(owner))
-                    for row in cursor.fetchall():
-                        row['host'] = host
-                        data.append(row)
+                    data[host] = cursor.fetchall()
             finally:
                 conn.close()
     return data
