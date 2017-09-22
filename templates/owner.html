@@ -13,9 +13,9 @@
 <table class="table table-striped table-condensed table-bordered tablesort">
   <thead>
     <tr>
-      <th>Schema</th>
+      <th data-sort-default>Schema</th>
       <th>Table</th>
-      <th data-sort-method="number" data-sort-default>Size</th>
+      <th data-sort-method="number">Size</th>
       <th data-sort-method="number">Rows</th>
     </tr>
   </thead>
@@ -40,7 +40,7 @@
 <script>
   $(document).ready(function() {
     $('table.tablesort').each(function(idx, elm) {
-      new Tablesort(elm, {descending: true});
+      new Tablesort(elm, {descending: false});
     });
   });
 </script>
