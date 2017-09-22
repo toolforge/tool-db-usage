@@ -24,8 +24,8 @@
           <tr>
             <th data-sort-default>Schema</th>
             <th>Table</th>
-            <th data-sort-method="number">Size</th>
             <th data-sort-method="number">Rows</th>
+            <th data-sort-method="number">Size</th>
           </tr>
         </thead>
         <tbody>
@@ -33,8 +33,12 @@
           <tr>
             <td>{{ r.table_schema }}</td>
             <td>{{ r.table_name }}</td>
-            <td class="number" data-sort="{{ r.total_bytes|int }}">{{ r.total_bytes|int|filesizeformat }}</td>
             <td class="number">{{ r.row_count|int }}</td>
+            <td class="number" data-sort="{{ r.total_bytes|int }}">{{ r.total_bytes|int|filesizeformat }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4">No tables found</td>
           </tr>
           {% endfor %}
         </tbody>

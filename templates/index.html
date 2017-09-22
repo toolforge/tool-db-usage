@@ -5,29 +5,45 @@
   <li class="active">Usage</li>
 </ol>
 
-{% for db, data in usage|dictsort %}
-<h2>{{ db }}</h2>
-<table id="{{ db }}" class="table table-striped table-condensed table-bordered tablesort">
-  <thead>
-    <tr>
-      <th>Owner</th>
-      <th data-sort-method="number" data-sort-default>Size</th>
-      <th data-sort-method="number">Rows</th>
-      <th data-sort-method="number">Tables</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for u in data %}
-    <tr>
-      <td id="{{ u.owner }}"><a href="{{ u.owner|owner_url }}">{{ u.owner|owner }}</a> (<a href="{{ url_for('owner_usage', name=u.owner) }}">{{ u.owner }}</a>)</td>
-      <td class="number" data-sort="{{ u.total_bytes }}">{{ u.total_bytes|filesizeformat }}</td>
-      <td class="number">{{ u.row_count|int }}</td>
-      <td class="number">{{ u.tables }}</td>
-    </tr>
+<h2>Tool owned tables</h2>
+
+<div>
+  <ul class="nav nav-tabs" role="tablist">
+    {% for db, data in usage|dictsort %}
+    <li role="presentation" class="{% if loop.first %}active{% endif %}"><a href="#{{ db|replace(".", "-") }}" aria-controls="{{ db|replace(".", "-") }}" role="tab" data-toggle="tab">{{ db }}</a></li>
     {% endfor %}
-  </tbody>
-</table>
-{% endfor %}
+  </ul>
+  <div class="tab-content">
+    {% for db, data in usage|dictsort %}
+    <div role="tabpanel" class="tab-pane {% if loop.first %}active{% endif %}" id="{{ db|replace(".", "-") }}">
+      <table class="table table-striped table-condensed table-bordered tablesort">
+        <thead>
+          <tr>
+            <th>Owner</th>
+            <th data-sort-method="number">Tables</th>
+            <th data-sort-method="number">Rows</th>
+            <th data-sort-method="number" data-sort-default>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in data %}
+          <tr>
+            <td id="{{ u.owner }}"><a href="{{ u.owner|owner_url }}">{{ u.owner|owner }}</a> (<a href="{{ url_for('owner_usage', name=u.owner) }}">{{ u.owner }}</a>)</td>
+            <td class="number">{{ u.tables }}</td>
+            <td class="number">{{ u.row_count|int }}</td>
+            <td class="number" data-sort="{{ u.total_bytes }}">{{ u.total_bytes|filesizeformat }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4">No tables found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}
 
 {% block js %}
