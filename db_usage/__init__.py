@@ -17,9 +17,14 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
+import pymysql.err
+
 import db_usage.utils as utils
 
 
+logger = logging.getLogger(__name__)
 CACHE = utils.Cache()
 
 
@@ -50,22 +55,26 @@ def dbusage(host, cached=True):
     cache_key = 'dbusage:{}'.format(host)
     data = CACHE.load(cache_key) if cached else None
     if data is None:
-        conn = utils.dbconnect('information_schema', host)
         try:
-            with conn.cursor() as cursor:
-                sql = """SELECT
-                    SUBSTRING_INDEX(table_schema, '_', 1) as owner
-                    , SUM( data_length + index_length ) as total_bytes
-                    , SUM( table_rows ) as row_count
-                    , COUNT(1) as tables
-                    FROM information_schema.TABLES
-                    WHERE table_schema regexp '^[psu][0-9]'
-                    GROUP BY owner
-                    ORDER BY total_bytes DESC"""
-                cursor.execute(sql)
-                data = cursor.fetchall()
-        finally:
-            conn.close()
+            conn = utils.dbconnect('information_schema', host)
+            try:
+                with conn.cursor() as cursor:
+                    sql = """SELECT
+                        SUBSTRING_INDEX(table_schema, '_', 1) as owner
+                        , SUM( data_length + index_length ) as total_bytes
+                        , SUM( table_rows ) as row_count
+                        , COUNT(1) as tables
+                        FROM information_schema.TABLES
+                        WHERE table_schema regexp '^[psu][0-9]'
+                        GROUP BY owner
+                        ORDER BY total_bytes DESC"""
+                    cursor.execute(sql)
+                    data = cursor.fetchall()
+            finally:
+                conn.close()
+        except pymysql.err.Error as e:
+            logger.exception('Failure fetching usage for %s', host)
+            data = []
         CACHE.save(cache_key, data)
     return data
 
@@ -76,21 +85,26 @@ def owner_usage(owner, cached=True):
     if data is None:
         data = {}
         for host in ('c1.labsdb', 'c3.labsdb', 'tools.labsdb'):
-            conn = utils.dbconnect('information_schema', host)
             try:
-                with conn.cursor() as cursor:
-                    sql = """SELECT
-                        table_schema
-                        , table_name
-                        , ( data_length + index_length ) as total_bytes
-                        , table_rows as row_count
-                        FROM information_schema.TABLES
-                        WHERE table_schema like %s
-                        ORDER BY table_schema, table_name"""
-                    cursor.execute(sql, '{}_%'.format(owner))
-                    data[host] = cursor.fetchall()
-            finally:
-                conn.close()
+                conn = utils.dbconnect('information_schema', host)
+                try:
+                    with conn.cursor() as cursor:
+                        sql = """SELECT
+                            table_schema
+                            , table_name
+                            , ( data_length + index_length ) as total_bytes
+                            , table_rows as row_count
+                            FROM information_schema.TABLES
+                            WHERE table_schema like %s
+                            ORDER BY table_schema, table_name"""
+                        cursor.execute(sql, '{}_%'.format(owner))
+                        data[host] = cursor.fetchall()
+                finally:
+                    conn.close()
+            except pymysql.err.Error as e:
+                logger.exception(
+                    'Failure fetching usage for %s on %s', owner, host)
+                data[host] = []
     return data
 
 
