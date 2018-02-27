@@ -39,8 +39,6 @@ def index():
     """Application landing page."""
     cached = 'purge' not in flask.request.args
     usage = {
-        'c1.labsdb': db_usage.dbusage('c1.labsdb', cached=cached),
-        'c3.labsdb': db_usage.dbusage('c3.labsdb', cached=cached),
         'tools.labsdb': db_usage.dbusage('tools.labsdb', cached=cached),
     }
     return flask.render_template('index.html', usage=usage)
