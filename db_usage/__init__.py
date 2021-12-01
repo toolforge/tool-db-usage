@@ -29,34 +29,34 @@ CACHE = utils.Cache()
 
 
 LEAGACY_USERS = {
-    'p50380g40014': 'UNKNOWN',
-    'p50380g50491': 'tools.tb-dev',
-    'p50380g50494': 'UNKNOWN',
-    'p50380g50497': 'liagent-php',
-    'p50380g50512': 'UNKNOWN',
-    'p50380g50551': 'UNKNOWN',
-    'p50380g50552': 'UNKNOWN',
-    'p50380g50553': 'suggestbot',
-    'p50380g50592': 'UNKNOWN',
-    'p50380g50692': 'dplbot',
-    'p50380g50728': 'hostbot',
-    'p50380g50729': 'grantsbot',
-    'p50380g50769': 'tools.wikiviewstats',
-    'p50380g50816': 'tools.popularpages',
-    'p50380g50824': 'UNKNOWN',
-    'p50380g50838': 'UNKNOWN',
-    'p50380g50900': 'UNKNOWN',
-    'p50380g50921': 'tools.wikiminiatlas',
+    "p50380g40014": "UNKNOWN",
+    "p50380g50491": "tools.tb-dev",
+    "p50380g50494": "UNKNOWN",
+    "p50380g50497": "liagent-php",
+    "p50380g50512": "UNKNOWN",
+    "p50380g50551": "UNKNOWN",
+    "p50380g50552": "UNKNOWN",
+    "p50380g50553": "suggestbot",
+    "p50380g50592": "UNKNOWN",
+    "p50380g50692": "dplbot",
+    "p50380g50728": "hostbot",
+    "p50380g50729": "grantsbot",
+    "p50380g50769": "tools.wikiviewstats",
+    "p50380g50816": "tools.popularpages",
+    "p50380g50824": "UNKNOWN",
+    "p50380g50838": "UNKNOWN",
+    "p50380g50900": "UNKNOWN",
+    "p50380g50921": "tools.wikiminiatlas",
 }
 
 
 def dbusage(host, cached=True):
     """Get a list of database usage records for a given host."""
-    cache_key = 'dbusage:{}'.format(host)
+    cache_key = "dbusage:{}".format(host)
     data = CACHE.load(cache_key) if cached else None
     if data is None:
         try:
-            conn = utils.dbconnect('information_schema', host)
+            conn = utils.dbconnect("information_schema", host)
             try:
                 with conn.cursor() as cursor:
                     sql = """SELECT
@@ -72,21 +72,21 @@ def dbusage(host, cached=True):
                     data = cursor.fetchall()
             finally:
                 conn.close()
-        except pymysql.err.Error as e:
-            logger.exception('Failure fetching usage for %s', host)
+        except pymysql.err.Error:
+            logger.exception("Failure fetching usage for %s", host)
             data = []
         CACHE.save(cache_key, data)
     return data
 
 
 def owner_usage(owner, cached=True):
-    cache_key = 'owner_usage:{}'.format(owner)
+    cache_key = "owner_usage:{}".format(owner)
     data = CACHE.load(cache_key) if cached else None
     if data is None:
         data = {}
-        for host in ('tools.labsdb',):
+        for host in ("tools.labsdb",):
             try:
-                conn = utils.dbconnect('information_schema', host)
+                conn = utils.dbconnect("information_schema", host)
                 try:
                     with conn.cursor() as cursor:
                         sql = """SELECT
@@ -97,23 +97,24 @@ def owner_usage(owner, cached=True):
                             FROM information_schema.TABLES
                             WHERE table_schema like %s
                             ORDER BY table_schema, table_name"""
-                        cursor.execute(sql, '{}_%'.format(owner))
+                        cursor.execute(sql, "{}_%".format(owner))
                         data[host] = cursor.fetchall()
                 finally:
                     conn.close()
-            except pymysql.err.Error as e:
+            except pymysql.err.Error:
                 logger.exception(
-                    'Failure fetching usage for %s on %s', owner, host)
+                    "Failure fetching usage for %s on %s", owner, host
+                )
                 data[host] = []
     return data
 
 
 def decode_owner(owner):
     """Return a link to the owner of the tablespace."""
-    if owner[0] == 'u':
+    if owner[0] == "u":
         # normal user
         cn = utils.uid_to_cn(owner[1:])
-    elif owner[0] == 's':
+    elif owner[0] == "s":
         # "service group" == tool
         cn = utils.uid_to_cn(owner[1:])
     else:

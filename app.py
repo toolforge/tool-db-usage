@@ -18,8 +18,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import flask
-import toolforge
-import werkzeug.contrib.fixers
+import werkzeug.middleware.proxy_fix
 
 import db_usage
 
@@ -28,44 +27,41 @@ import db_usage
 app = flask.Flask(__name__)
 
 # Add the ProxyFix middleware which reads X-Forwarded-* headers
-app.wsgi_app = werkzeug.contrib.fixers.ProxyFix(app.wsgi_app)
-
-# Always use TLS
-app.before_request(toolforge.redirect_to_https)
+app.wsgi_app = werkzeug.middleware.proxy_fix.ProxyFix(app.wsgi_app)
 
 
-@app.route('/')
+@app.route("/")
 def index():
     """Application landing page."""
-    cached = 'purge' not in flask.request.args
+    cached = "purge" not in flask.request.args
     usage = {
-        'tools.labsdb': db_usage.dbusage('tools.labsdb', cached=cached),
+        "tools.labsdb": db_usage.dbusage("tools.labsdb", cached=cached),
     }
-    return flask.render_template('index.html', usage=usage)
+    return flask.render_template("index.html", usage=usage)
 
 
-@app.route('/owner/<name>')
+@app.route("/owner/<name>")
 def owner_usage(name):
-    cached = 'purge' not in flask.request.args
+    cached = "purge" not in flask.request.args
     usage = db_usage.owner_usage(name, cached=cached)
-    return flask.render_template('owner.html', name=name, usage=usage)
+    return flask.render_template("owner.html", name=name, usage=usage)
 
 
-@app.template_filter('owner')
+@app.template_filter("owner")
 def owner_name(s):
     return db_usage.decode_owner(s)
 
 
-@app.template_filter('owner_url')
+@app.template_filter("owner_url")
 def owner_url(s):
     owner = db_usage.decode_owner(s)
-    if owner == 'UNKNOWN':
-        base = 'https://phabricator.wikimedia.org/T175096'
-        page = ''
-    elif owner.startswith('tools.'):
-        base = 'https://tools.wmflabs.org/admin/tool/'
+    if owner == "UNKNOWN":
+        base = "https://phabricator.wikimedia.org/T175096"
+        page = ""
+    elif owner and owner.startswith("tools."):
+        base = "https://tools.wmflabs.org/admin/tool/"
         page = owner[6:]
     else:
-        base = 'https://wikitech.wikimedia.org/wiki/User:'
+        base = "https://wikitech.wikimedia.org/wiki/User:"
         page = owner
-    return '{}{}'.format(base, page)
+    return "{}{}".format(base, page)

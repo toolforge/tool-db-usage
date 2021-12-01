@@ -29,7 +29,7 @@ import ldap3
 import pymysql
 import pymysql.converters
 import pymysql.constants
-import redis
+import redis.client
 
 
 def dbconnect(db, host, **kwargs):
@@ -45,28 +45,32 @@ def dbconnect(db, host, **kwargs):
         database=db,
         host=host,
         read_default_file=os.path.expanduser("~/replica.my.cnf"),
-        charset='utf8mb4',
+        charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
         conv=conv,
-        **kwargs
+        **kwargs,
     )
 
 
 class Cache(object):
     def __init__(self, enabled=True):
         self.enabled = enabled
-        self.conn = redis.Redis(host='tools-redis', decode_responses=True)
+        self.conn = redis.client.Redis(
+            host="tools-redis.svc.eqiad.wmflabs",
+            decode_responses=True,
+        )
         u = pwd.getpwuid(os.getuid())
         self.prefix = hashlib.sha1(
-            '{}.{}'.format(u.pw_name, u.pw_dir).encode('utf-8')).hexdigest()
+            "{}.{}".format(u.pw_name, u.pw_dir).encode("utf-8")
+        ).hexdigest()
 
     def key(self, val):
-        return '%s%s' % (self.prefix, val)
+        return "%s%s" % (self.prefix, val)
 
     def load(self, key):
         if self.enabled:
             try:
-                return json.loads(self.conn.get(self.key(key)) or '')
+                return json.loads(self.conn.get(self.key(key)) or "")
             except ValueError:
                 return None
         else:
@@ -84,23 +88,27 @@ def ldap_conn():
 
     Return value can be used as a context manager
     """
-    servers = ldap3.ServerPool([
-        ldap3.Server('ldap-labs.eqiad.wikimedia.org'),
-        ldap3.Server('ldap-labs.codfw.wikimedia.org'),
-    ], ldap3.ROUND_ROBIN, active=True, exhaust=True)
-    return ldap3.Connection(
-        servers, read_only=True, auto_bind=True)
+    servers = ldap3.ServerPool(
+        [
+            ldap3.Server("ldap-labs.eqiad.wikimedia.org"),
+            ldap3.Server("ldap-labs.codfw.wikimedia.org"),
+        ],
+        ldap3.ROUND_ROBIN,
+        active=True,
+        exhaust=True,
+    )
+    return ldap3.Connection(servers, read_only=True, auto_bind=True)
 
 
 @functools.lru_cache(maxsize=None)
 def uid_to_cn(uid):
     with ldap_conn() as conn:
         conn.search(
-            'dc=wikimedia,dc=org',
-            '(uidNumber={})'.format(uid),
+            "dc=wikimedia,dc=org",
+            "(uidNumber={})".format(uid),
             ldap3.SUBTREE,
-            attributes=['cn'],
-            time_limit=5
+            attributes=["cn"],
+            time_limit=5,
         )
         for resp in conn.response:
-            return resp['attributes']['cn'][0]
+            return resp["attributes"]["cn"][0]
