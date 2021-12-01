@@ -79,7 +79,7 @@ class Cache(object):
     def save(self, key, data, expiry=3600):
         if self.enabled:
             real_key = self.key(key)
-            self.conn.setex(real_key, json.dumps(data), expiry)
+            self.conn.setex(real_key, expiry, json.dumps(data))
 
 
 def ldap_conn():
