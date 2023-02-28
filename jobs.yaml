@@ -1,0 +1,6 @@
+- name: update-cache
+  command: curl 'https://tool-db-usage.toolforge.org/?purge'
+  image: bullseye
+  no-filelog: true
+  schedule: "09,39 * * * *"
+  emails: onfailure
