@@ -65,7 +65,7 @@ def owner_url(s):
         base = "https://phabricator.wikimedia.org/T175096"
         page = ""
     elif owner and owner.startswith("tools."):
-        base = "https://tools.wmflabs.org/admin/tool/"
+        base = "https://toolsadmin.wikimedia.org/tools/id/"
         page = owner[6:]
     else:
         base = "https://wikitech.wikimedia.org/wiki/User:"
