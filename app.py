@@ -30,12 +30,18 @@ app = flask.Flask(__name__)
 app.wsgi_app = werkzeug.middleware.proxy_fix.ProxyFix(app.wsgi_app)
 
 
+HOSTS = {
+    "ToolsDB": "tools.db.svc.eqiad.wmflabs",
+}
+
+
 @app.route("/")
 def index():
     """Application landing page."""
     cached = "purge" not in flask.request.args
     usage = {
-        "tools.labsdb": db_usage.dbusage("tools.labsdb", cached=cached),
+        name: db_usage.dbusage(host, cached=cached)
+        for name, host in HOSTS.items()
     }
     return flask.render_template("index.html", usage=usage)
 
@@ -43,7 +49,7 @@ def index():
 @app.route("/owner/<name>")
 def owner_usage(name):
     cached = "purge" not in flask.request.args
-    usage = db_usage.owner_usage(name, cached=cached)
+    usage = db_usage.owner_usage(name, HOSTS, cached=cached)
     return flask.render_template("owner.html", name=name, usage=usage)
 
 

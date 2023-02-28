@@ -18,6 +18,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from typing import Dict
 
 import pymysql.err
 
@@ -79,12 +80,12 @@ def dbusage(host, cached=True):
     return data
 
 
-def owner_usage(owner, cached=True):
+def owner_usage(owner, hosts: Dict[str, str], cached=True):
     cache_key = "owner_usage:{}".format(owner)
     data = CACHE.load(cache_key) if cached else None
     if data is None:
         data = {}
-        for host in ("tools.labsdb",):
+        for name, host in hosts.values():
             try:
                 conn = utils.dbconnect("information_schema", host)
                 try:
@@ -98,14 +99,14 @@ def owner_usage(owner, cached=True):
                             WHERE table_schema like %s
                             ORDER BY table_schema, table_name"""
                         cursor.execute(sql, "{}_%".format(owner))
-                        data[host] = cursor.fetchall()
+                        data[name] = cursor.fetchall()
                 finally:
                     conn.close()
             except pymysql.err.Error:
                 logger.exception(
                     "Failure fetching usage for %s on %s", owner, host
                 )
-                data[host] = []
+                data[name] = []
     return data
 
 
