@@ -85,7 +85,7 @@ def owner_usage(owner, hosts: Dict[str, str], cached=True):
     data = CACHE.load(cache_key) if cached else None
     if data is None:
         data = {}
-        for name, host in hosts.values():
+        for name, host in hosts.items():
             try:
                 conn = utils.dbconnect("information_schema", host)
                 try:
