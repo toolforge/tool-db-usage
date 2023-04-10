@@ -1,0 +1,19 @@
+stages:
+  - test
+
+variables:
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+test:tox:
+  stage: test
+  image: python:3.9
+  cache:
+    key: pip-3.9
+    paths:
+      - .cache/pip
+  script:
+    - python3 --version
+    - python3 -m pip install --upgrade pip wheel tox
+    - tox
