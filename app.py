@@ -31,7 +31,7 @@ app.wsgi_app = werkzeug.middleware.proxy_fix.ProxyFix(app.wsgi_app)
 
 
 HOSTS = {
-    "ToolsDB": "tools.db.svc.eqiad.wmflabs",
+    "ToolsDB": "tools.db.svc.wikimedia.cloud",
 }
 
 
