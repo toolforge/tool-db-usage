@@ -20,10 +20,8 @@
 from __future__ import division
 
 import functools
-import hashlib
 import json
 import os
-import pwd
 
 import ldap3
 import pymysql
@@ -60,13 +58,10 @@ class Cache(object):
             host="redis.svc.tools.eqiad1.wikimedia.cloud",
             decode_responses=True,
         )
-        u = pwd.getpwuid(os.getuid())
-        self.prefix = hashlib.sha1(
-            "{}.{}".format(u.pw_name, u.pw_dir).encode("utf-8")
-        ).hexdigest()
+        self.prefix = os.environ.get("CACHE_PREFIX")
 
     def key(self, val):
-        return "%s%s" % (self.prefix, val)
+        return f"{self.prefix}.{val}"
 
     def load(self, key):
         if self.enabled:
