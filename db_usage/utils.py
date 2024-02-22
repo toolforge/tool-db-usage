@@ -108,7 +108,7 @@ def uids_to_cns(uids):
             time_limit=5,
         )
         for resp in conn.response:
-            uid = int(resp["attributes"]["uidNumber"][0])
+            uid = resp["attributes"]["uidNumber"]
             cns[uid] = resp["attributes"]["cn"][0]
 
     return cns
