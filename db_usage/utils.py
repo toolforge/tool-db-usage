@@ -44,7 +44,8 @@ def dbconnect(db, host, **kwargs):
     return pymysql.connect(
         database=db,
         host=host,
-        read_default_file=os.path.expanduser("~/replica.my.cnf"),
+        user=os.environ.get("TOOL_TOOLSDB_USER"),
+        password=os.environ.get("TOOL_TOOLSDB_PASSWORD"),
         charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
         conv=conv,
