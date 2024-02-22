@@ -99,7 +99,7 @@ def uids_to_cns(uids):
     cns = {}
 
     with ldap_conn() as conn:
-        search = [f"(uidNumber={uid})" for uid in uids]
+        search = "".join([f"(uidNumber={uid})" for uid in uids])
         conn.search(
             "dc=wikimedia,dc=org",
             f"(|{search})",

@@ -55,9 +55,9 @@ def dbusage(host, cached=True):
             logger.exception("Failure fetching usage for %s", host)
             data = []
 
-        owners = utils.uids_to_cns([int(row["owner"]) for row in data])
+        owners = utils.uids_to_cns([int(row["owner"][1:]) for row in data])
         for row in data:
-            row["owner_name"] = owners[int(row["owner"])]
+            row["owner_name"] = owners.get(int(row["owner"][1:]), "UNKNOWN")
 
         CACHE.save(cache_key, data)
     return data
@@ -100,6 +100,6 @@ def owner_name(owner, cached=True):
     data = CACHE.load(cache_key) if cached else None
     if data is None:
         uid = int(owner[1:])
-        data = utils.uid_to_cn([uid])[uid]
+        data = utils.uids_to_cns([uid]).get(uid, "UNKNOWN")
         CACHE.save(cache_key, data)
     return data
