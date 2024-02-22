@@ -61,10 +61,7 @@ def owner_name(s):
 @app.template_filter("owner_url")
 def owner_url(s):
     owner = db_usage.decode_owner(s)
-    if owner == "UNKNOWN":
-        base = "https://phabricator.wikimedia.org/T175096"
-        page = ""
-    elif owner and owner.startswith("tools."):
+    if owner and owner.startswith("tools."):
         base = "https://toolsadmin.wikimedia.org/tools/id/"
         page = owner[6:]
     else:
