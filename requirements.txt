@@ -1,4 +1,5 @@
 flask
+gunicorn
 ldap3
 pymysql
 redis

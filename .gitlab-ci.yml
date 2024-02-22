@@ -8,9 +8,9 @@ variables:
 
 test:tox:
   stage: test
-  image: python:3.9
+  image: python:3.12
   cache:
-    key: pip-3.9
+    key: pip-3.12
     paths:
       - .cache/pip
   script:
