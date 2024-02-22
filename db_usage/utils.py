@@ -19,7 +19,6 @@
 
 from __future__ import division
 
-import functools
 import json
 import os
 
@@ -96,15 +95,20 @@ def ldap_conn():
     return ldap3.Connection(servers, read_only=True, auto_bind=True)
 
 
-@functools.lru_cache(maxsize=None)
-def uid_to_cn(uid):
+def uids_to_cns(uids):
+    cns = {}
+
     with ldap_conn() as conn:
+        search = [f"(uidNumber={uid})" for uid in uids]
         conn.search(
             "dc=wikimedia,dc=org",
-            "(uidNumber={})".format(uid),
+            f"(|{search})",
             ldap3.SUBTREE,
-            attributes=["cn"],
+            attributes=["uidNumber", "cn"],
             time_limit=5,
         )
         for resp in conn.response:
-            return resp["attributes"]["cn"][0]
+            uid = int(resp["attributes"]["uidNumber"][0])
+            cns[uid] = resp["attributes"]["cn"][0]
+
+    return cns

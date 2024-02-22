@@ -54,6 +54,11 @@ def dbusage(host, cached=True):
         except pymysql.err.Error:
             logger.exception("Failure fetching usage for %s", host)
             data = []
+
+        owners = utils.uids_to_cns([int(row["owner"]) for row in data])
+        for row in data:
+            row["owner_name"] = owners[int(row["owner"])]
+
         CACHE.save(cache_key, data)
     return data
 
@@ -85,9 +90,16 @@ def owner_usage(owner, hosts: Dict[str, str], cached=True):
                     "Failure fetching usage for %s on %s", owner, host
                 )
                 data[name] = []
+        CACHE.save(cache_key, data)
     return data
 
 
-def decode_owner(owner):
+def owner_name(owner, cached=True):
     """Return a link to the owner of the tablespace."""
-    return utils.uid_to_cn(owner[1:])
+    cache_key = "owner_name:{}".format(owner)
+    data = CACHE.load(cache_key) if cached else None
+    if data is None:
+        uid = int(owner[1:])
+        data = utils.uid_to_cn([uid])[uid]
+        CACHE.save(cache_key, data)
+    return data

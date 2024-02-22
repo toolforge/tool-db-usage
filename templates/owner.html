@@ -3,11 +3,11 @@
 {% block content %}
 <ol class="breadcrumb">
   <li><a href="{{ url_for('index') }}">Usage</a></li>
-  <li class="active">{{ name }}</li>
+  <li class="active">{{ user }}</li>
 </ol>
 
-<h2>Tables owned by {{ name }}
-  <small>(<a href="{{ name|owner_url }}">{{ name|owner }}</a>)</small>
+<h2>Tables owned by {{ user }}
+  <small>(<a href="{{ user|owner_url }}">{{ name }}</a>)</small>
 </h2>
 
 <div>

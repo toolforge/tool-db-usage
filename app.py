@@ -46,21 +46,18 @@ def index():
     return flask.render_template("index.html", usage=usage)
 
 
-@app.route("/owner/<name>")
-def owner_usage(name):
+@app.route("/owner/<user>")
+def owner_usage(user):
     cached = "purge" not in flask.request.args
-    usage = db_usage.owner_usage(name, HOSTS, cached=cached)
-    return flask.render_template("owner.html", name=name, usage=usage)
-
-
-@app.template_filter("owner")
-def owner_name(s):
-    return db_usage.decode_owner(s)
+    usage = db_usage.owner_usage(user, HOSTS, cached=cached)
+    name = db_usage.owner_name(user, cached=cached)
+    return flask.render_template(
+        "owner.html", user=user, name=name, usage=usage
+    )
 
 
 @app.template_filter("owner_url")
-def owner_url(s):
-    owner = db_usage.decode_owner(s)
+def owner_url(owner):
     if owner and owner.startswith("tools."):
         base = "https://toolsadmin.wikimedia.org/tools/id/"
         page = owner[6:]

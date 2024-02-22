@@ -28,7 +28,7 @@
         <tbody>
           {% for u in data %}
           <tr>
-            <td id="{{ u.owner }}"><a href="{{ u.owner|owner_url }}">{{ u.owner|owner }}</a> (<a href="{{ url_for('owner_usage', name=u.owner) }}">{{ u.owner }}</a>)</td>
+            <td id="{{ u.owner }}"><a href="{{ u.owner_name|owner_url }}">{{ u.owner_name }}</a> (<a href="{{ url_for('owner_usage', user=u.owner) }}">{{ u.owner }}</a>)</td>
             <td class="number">{{ u.tables }}</td>
             <td class="number">{{ u.row_count|int }}</td>
             <td class="number" data-sort="{{ u.total_bytes }}">{{ u.total_bytes|filesizeformat }}</td>
